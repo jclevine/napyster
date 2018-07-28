@@ -1,0 +1,12 @@
+# JetBrains
+.idea/
+
+# Token caches
+.last_token
+.refresh_token
+
+# Python
+**/__pycache__/**
+**/.coverage
+coverage_html_report/
+htmlcov/
