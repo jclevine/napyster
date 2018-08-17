@@ -1,9 +1,13 @@
 from src.simple_track import SimpleTrack
+import re
+from src.common import cleanse_music_text
 
 
 class SimpleTrackNapster(SimpleTrack):
+    WHITELIST = ['id', 'name', 'albumName', 'artistName']
+
     def __init__(self, track):
-        self._track = track
+        self._track = {k: cleanse_music_text(v) for (k, v) in track.items() if k in self.WHITELIST}
 
     @classmethod
     def build(cls, artist_name, album_title, title, id=0):
