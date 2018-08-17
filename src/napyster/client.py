@@ -33,13 +33,10 @@ class NapsterClient:
         url = self.SEARCH_VERBOSE_URL.format(api_version=api_version)
         headers = {'Authorization': 'Bearer {}'.format(self._access_token_provider())}
         response = json.loads(requests.get(url, query_params, headers=headers).text)
-        tracks = [
+        tracks = {
             SimpleTrackNapster(track)
             for track
             in response['search']['data']['tracks']
-            if query_track.album_title in track['albumName']
-        ]
-        if len(tracks) == 1:
-            return tracks[0]
-        else:
-            return '\n'.join([track['albumName'] for track in response['search']['data']['tracks']])
+            if query_track.album_title in track['albumName'] and query_track.artist_name == track['artistName']
+        }
+        return tracks

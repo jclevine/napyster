@@ -6,14 +6,14 @@ class SimpleTrackNapster(SimpleTrack):
         self._track = track
 
     @classmethod
-    def build(cls, artist_name, album_title, title):
-        return cls.build_from_piped_info('{}||{}||{}'.format(artist_name, album_title, title))
+    def build(cls, artist_name, album_title, title, id=0):
+        return cls.build_from_piped_info('{}||{}||{}'.format(artist_name, album_title, title), id=id)
 
     @staticmethod
-    def build_from_piped_info(piped_info):
+    def build_from_piped_info(piped_info, id=0):
         info = piped_info.split('||')
         return SimpleTrackNapster({
-            'id': 0,
+            'id': id,
             'name': info[2],
             'artistName': info[0],
             'albumName': info[1]

@@ -23,6 +23,12 @@ class SimpleTrack:
 
         return NotImplemented
 
+    @property
+    def __dict__(self):
+        return {
+            'id': self.id, 'artist_name': self.artist_name, 'album_title': self.album_title, 'title': self.title
+        }
+
     def __hash__(self):
         return hash(tuple(sorted(self.__dict__.items())))
 
