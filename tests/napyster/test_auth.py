@@ -1,9 +1,9 @@
 from unittest import TestCase
 from src.napyster.auth import _get_new_access_tokens, _refresh_api_token
-from src.napyster.auth import get_access_tokens
+from src.napyster.auth import get_access_token
 from unittest.mock import patch, call
 from uuid import UUID
-from tests.common import mock_response
+from tests.common import mock_auth_response
 from unittest.mock import ANY
 import os
 
@@ -16,7 +16,7 @@ MOCK_STATE = '11111111-1111-1111-1111-111111111111'
 @patch('src.napyster.auth.uuid4', return_value='fake-uuid')
 @patch('src.napyster.auth.input', side_effect=[MOCK_CODE, MOCK_STATE])
 @patch('src.napyster.auth.webbrowser.open_new_tab')
-@patch('src.napyster.auth.requests.post', return_value=mock_response('my-token', 'so-fresh-so-clean'))
+@patch('src.napyster.auth.requests.post', return_value=mock_auth_response('my-token', 'so-fresh-so-clean'))
 class TestAuth(TestCase):
     def test_given_you_need_a_new_token_when_you_ask_for_a_token_then_you_get_one(self, mock_post, *_):
         """
@@ -70,15 +70,15 @@ class TestAuth(TestCase):
          Then you need to get an entirely new token
           and you save it to the cache file
         """
-        actual = get_access_tokens(last_token_path='tests/.test_token', refresh_token_path='dne')
+        actual = get_access_token(last_token_path='tests/.test_token', refresh_token_path='dne')
         expected = {'api_key': 'api-key', 'api_secret': 'secret', 'state': 'fake-uuid'}
         mock_get_access_token.assert_called_with(**expected)
-        self.assertDictEqual({'access_token': 'new-token', 'refresh_token': 'even-fresher'}, actual)
+        self.assertEqual('new-token', actual)
         mock_write.assert_has_calls(
             [call('.last_token', 'new-token'), call('.refresh_token', 'even-fresher')]
         )
 
-    @patch('src.napyster.auth.get_access_tokens')
+    @patch('src.napyster.auth.get_access_token')
     def test_given_you_have_both_tokens_when_you_run_then_you_get_the_same_tokens(self, mock_get_token, mock_write, *_):
         """
         Given you have both tokens
@@ -86,11 +86,10 @@ class TestAuth(TestCase):
          Then you get the same tokens
           and you don't save either
         """
-        actual = get_access_tokens(last_token_path='tests/.test_token', refresh_token_path='tests/.test_token2')
+        actual = get_access_token(last_token_path='tests/.test_token', refresh_token_path='tests/.test_token2')
         mock_get_token.assert_not_called()
         mock_write.assert_not_called()
-        self.assertDictEqual(
-            {'access_token': 'i-am-only-a-test-token', 'refresh_token': 'i-am-only-a-test-token-but-2'}, actual
+        self.assertEqual('i-am-only-a-test-token', actual
         )
 
     @patch('src.napyster.auth.write_token_to_filepath')
@@ -104,12 +103,12 @@ class TestAuth(TestCase):
          Then you refresh the token
           and you save the access token to the cache file
         """
-        actual = get_access_tokens(last_token_path='dne', refresh_token_path='tests/.test_token')
+        actual = get_access_token(last_token_path='dne', refresh_token_path='tests/.test_token')
         expected = {
             'api_key': 'api-key',
             'api_secret': 'secret',
             'refresh_token': 'i-am-only-a-test-token',
         }
         mock_refresh_token.assert_called_with(**expected)
-        self.assertDictEqual({'access_token': 'new-token', 'refresh_token': 'even-fresher'}, actual)
+        self.assertEqual('new-token', actual)
         mock_write.assert_called_once_with('.last_token', 'new-token')

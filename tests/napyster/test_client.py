@@ -1,27 +1,25 @@
 from unittest import TestCase
 from src.napyster import SimpleTrackNapster as Track
 from src.napyster import NapsterClient
-from os import environ
-from unittest.mock import patch
-import os
+from unittest.mock import patch, Mock
+from src.napyster import SimpleTrackNapster
+from tests.common import mock_single_search_answer_response
 
 
-@patch.dict(os.environ, {'API_KEY': 'api-key', 'API_SECRET': 'secret'})
 class TestClient(TestCase):
 
-    def test_when_search_for_song_then_you_get_track(self):
+    @patch('src.napyster.client.requests.get', return_value=mock_single_search_answer_response())
+    def test_when_search_for_song_then_you_get_track(self, mock_get):
         """
-         When you search for the song My Name Is Jonas by Weezer
+        Given Atlas Sound||Logos||Quick Canal returns only one result
+         When you search for the track Atlas Sound||Logos||Quick Canal
          Then you get that track
         """
-        api_key = environ['API_KEY']
-        client = NapsterClient(api_key)
-        track = client.search_for_track('Weezer Weezer My Name Is Jonas')
-        self.assertEqual(track, Track.build('Weezer', 'Weezer', 'My Name Is Jonas'))
-
-        """
-        curl -v -X POST  -H "Authorization: Bearer {access_token}" -H "Content-Type: application/json"
-        -d '{"favorites": [ {"id":"alb.54719066"}, {"id":"tra.54719072"} ]}'
-        "https://api.napster.com/v2.2/me/favorites"
-
-        """
+        client = NapsterClient('api-key', Mock(return_value='access-token'))
+        simple_track = SimpleTrackNapster.build('Atlas Sound', 'Logos', 'Quick Canal')
+        actual = client.search_for_track_by_album(simple_track)
+        self.assertEqual(simple_track, actual)
+        expected_url = 'http://api.napster.com/v2.2/search/verbose'
+        expected_query_params = 'apikey=api-key&query=Atlas+Sound+Quick+Canal&type=track'
+        expected_headers = {'Authorization': 'Bearer access-token'}
+        mock_get.assert_called_with(expected_url, expected_query_params, headers=expected_headers)

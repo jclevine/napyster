@@ -58,7 +58,7 @@ def _get_cached_tokens(last_token_path='.last_token', refresh_token_path='.refre
     }
 
 
-def get_access_tokens(last_token_path='.last_token', refresh_token_path='.refresh_token'):
+def get_access_token(last_token_path='.last_token', refresh_token_path='.refresh_token'):
     api_elements = {
         'api_key': environ['API_KEY'],
         'api_secret': environ.get('API_SECRET'),
@@ -76,4 +76,4 @@ def get_access_tokens(last_token_path='.last_token', refresh_token_path='.refres
         write_token_to_filepath('.last_token', tokens['access_token'])
         write_token_to_filepath('.refresh_token', tokens['refresh_token'])
 
-    return tokens
+    return tokens['access_token']
