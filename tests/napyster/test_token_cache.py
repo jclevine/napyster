@@ -1,5 +1,5 @@
 from unittest import TestCase
-from src.napyster.main import get_cached_tokens
+from src.napyster.auth import _get_cached_tokens
 
 
 class TestTokenCache(TestCase):
@@ -9,7 +9,7 @@ class TestTokenCache(TestCase):
          When you get the cached tokens
          Then you get neither token
         """
-        actual = get_cached_tokens(last_token_path='dne', refresh_token_path='dne')
+        actual = _get_cached_tokens(last_token_path='dne', refresh_token_path='dne')
         self.assertDictEqual({'access_token': None, 'refresh_token': None}, actual)
 
     def test_given_you_have_only_the_last_token_when_you_get_cached_tokens_then_you_only_get_the_last_token(self):
@@ -18,7 +18,7 @@ class TestTokenCache(TestCase):
          When you get the cached tokens
          Then you only get the last token
         """
-        actual = get_cached_tokens(last_token_path='tests/.test_token', refresh_token_path='dne')
+        actual = _get_cached_tokens(last_token_path='tests/.test_token', refresh_token_path='dne')
         self.assertDictEqual({'access_token': 'i-am-only-a-test-token', 'refresh_token': None}, actual)
 
     def test_given_you_have_only_the_refresh_token_when_you_get_cached_tokens_then_you_only_get_the_refresh_token(self):
@@ -27,7 +27,7 @@ class TestTokenCache(TestCase):
          When you get the cached tokens
          Then you only get the refresh token
         """
-        actual = get_cached_tokens(last_token_path='dne', refresh_token_path='tests/.test_token')
+        actual = _get_cached_tokens(last_token_path='dne', refresh_token_path='tests/.test_token')
         self.assertDictEqual({'access_token': None, 'refresh_token': 'i-am-only-a-test-token'}, actual)
 
     def test_given_you_have_both_tokens_when_you_get_cached_tokens_then_you_get_both_tokens(self):
@@ -36,7 +36,7 @@ class TestTokenCache(TestCase):
          When you get the cached tokens
          Then you get both tokens
         """
-        actual = get_cached_tokens(last_token_path='tests/.test_token', refresh_token_path='tests/.test_token2')
+        actual = _get_cached_tokens(last_token_path='tests/.test_token', refresh_token_path='tests/.test_token2')
         self.assertDictEqual(
             {'access_token': 'i-am-only-a-test-token', 'refresh_token': 'i-am-only-a-test-token-but-2'},
             actual

@@ -16,3 +16,8 @@ def get_line_from_filepath(filepath):
 def write_line_to_filepath(filepath, line):  # pragma: no cover
     with open(filepath, 'w') as f:
         f.write(line)
+
+
+def get_lines_as_list(filepath):
+    with open(filepath, 'r') as f:
+        return f.read().splitlines()
